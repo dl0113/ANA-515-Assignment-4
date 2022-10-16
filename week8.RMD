@@ -1,0 +1,78 @@
+---
+title: "ANA 515 Assignment 4"
+author: "Dongyoon Lee"
+date: "October 16th, 2022"
+output: 
+  html_document:
+    theme:
+      bootswatch: minty
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(knitr)
+library(bslib)
+library(dplyr)
+library(ggplot2)
+library(cluster)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Business Problem and Goal
+The goal of this project is to segment mall customers on their age, gender, interest, etc. Customer segmentation is an important tool in the field of business to better understand customers and apply customized marketing.
+
+## Data Source
+The source data was retrieved from https://www.kaggle.com/datasets/shwetabh123/mall-customers
+
+## Code Source
+The source code was retrieved from https://www.kaggle.com/code/rinichristy/k-means-clustering-in-r
+
+## Reading the Data
+```{r, echo=TRUE}
+#we use the read_csv function from the dplyr module
+url <- "C:/Users/JasonLee/Documents/McDaniel/ANA_515/Mall_Customers.csv"
+ds <- read.csv(url)
+head(ds)
+```
+
+## Data Summary
+This dataframe has `r nrow(ds)` rows and `r ncol(ds)` columns. The names of the columns and a brief description of each are in the table below along with the data summary:
+```{r summary, echo=TRUE}
+#this makes a new data.frame called text_tbl with two columns, Names and Description
+text_tbl <- data.frame( 
+  Names = c("CustomerID", "Gender", "Age", "Annual_Income", "Spending_Score"), 
+  Description = c("Unique ID", "Customer Gender M or F", "Customer Age", "Customer Annual Income in 1000s", "Customer Spending Score out of 100")
+) 
+text_tbl #prints the table
+summary(ds)
+```
+
+## Data Cleaning
+The data that was retreieved from the source had already been cleaned. Assuming that customers filled out forms asking for their information, we can assume that some data cleaning processes must have taken place. For example, we can assume that some customers would have left out some peices of information. Therefore, there must have been some sort of process to either remove data records with missing values or fill missing data points with default values. In the case with our data, it would not make sense to set any default values to missing fields. Thus, we can assume that records with missing data fields must have been removed from this dataset. Other data cleaning steps taken place could be the rounding down or up of annual income to the nearest thousand.
+
+## Modeling 
+The model that the project decided to use is Kmeans clustering. This is a ML statistical algorithm that segments the data into k number of clusters that are similar in characteristics. In the case of this project, they decided to plot the two fields, spending score and annual income, and create a 2D plane to generate the clusters. With 5 clusters, they were able to accurately segment the entire data population into 5 clusters. Within each cluster, the data points are closer to the mean of that cluster than they are to the other 4 clusters. With this information, they will be able to label each cluster and target their marketing to each group differently to maximize their spending.
+
+```{r modeling, echo=TRUE}
+set.seed(29)
+ds = ds[4:5]
+KM = kmeans(x=ds, centers=5)
+y_KM = KM$cluster
+clusplot(ds,
+         y_KM,
+         lines = 0,
+         shade = TRUE,
+         color = TRUE,
+         labels = 2,
+         plotchar = FALSE,
+         span = TRUE,
+         main = paste('Clusters of customers'),
+         xlab = 'Annual Income',
+         ylab = 'Spending Score')
+```
+
+## Results and Conclusion
+The final result is a model that would be able to take a customer's spending score and annual income to predict the customer's segment. In the final output visualization, you can see that there are 5 clusters. We can annotate these clusters as the following: Low income, middle income - middle spending, high income - high spending and high income - low spending. Once a customer is classified into one of these groups, businesses will be able to target them with customized marketing strategies and advertisements that are most effective to each cluster. For example, ads that are sponsored by an influential celebrity may be more effective towards bringing in customers of higher income and higher spending than customers of higher income and lower spending. In addition, we can use the means and modes of the other traits such as gender and age to better understand the demographic of each cluster and modify the marketing tactics to increase customer spending.
+
+
+
